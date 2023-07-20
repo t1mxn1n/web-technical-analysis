@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Личный кабинет</title>
+    <meta charset="utf-8">
+    <script src="{% static 'patterns_app/js/adding_actives.js' %}"></script>
+    <link type="text/css" href="{% static 'patterns_app/css/styles.css' %}" rel="stylesheet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body onload="makeActivesList('{{ user.username }}')">
+
+    <div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+      <div class="col-md-3 mb-2 mb-md-0">
+        <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+          <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+        </a>
+      </div>
+
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="{% url 'home' %}" class="nav-link px-2 link-secondary">Домашняя страница</a></li>
+        <li><a href="{% url 'about_ta' %}" class="nav-link px-2">О техническом анализе</a></li>
+        <li><a href="{% url 'decs_indicators' %}" class="nav-link px-2">Описание индикаторов</a></li>
+      </ul>
+
+      <div class="col-md-3 text-end">
+        {% if request.user.is_authenticated %}
+
+        <div class="dropdown">
+            <button class="btn btn-primary">{{user.username}}</button>
+            <div class="dropdown-content">
+            <a href="{% url 'lk' %}">Личный кабинет</a>
+            <a href="{% url 'logout' %}">Выйти</a>
+            </div>
+        </div>
+
+        {% else %}
+        <button type="button" onClick="location.href='{% url 'login' %}'" class="btn btn-outline-primary me-2">Войти</button>
+        <button type="button" onClick="location.href='{% url 'register' %}'" class="btn btn-primary">Зарегистрироваться</button>
+        {% endif %}
+      </div>
+    </header>
+
+        <h2>Профиль</h2>
+        <div class="col-9">
+            <p style="font-size: 18px;">Имя пользователя:
+                <label style="display: inline-block;min-width: 150px;vertical-align: top;">{{ user.username }}</label>
+            </p>
+            <p style="font-size: 18px;">Email:
+                <label style="display: inline-block;min-width: 150px;vertical-align: top;">{{ user.email }}</label>
+            </p>
+            <p style="font-size: 18px;">Дата регистрации:
+                <label style="display: inline-block;min-width: 150px;vertical-align: top;">{{ user.date_joined|date:"d.m.Y" }} {{ user.date_joined|time:"H:i:s" }}</label>
+            </p>
+        </div>
+
+        <br>
+        <h2>Настройка активов</h2>
+
+        <div class="d-flex flex-column flex-md-row gap-4 py-md-2 align-items-center">
+          <div class="d-block position-static pt-0 mx-0 rounded-3" data-bs-theme="light">
+            <label for="dropdown_add_active" style="font-size: 18px;">Выберите тип рынка</label>
+                <select id="dropdown_add_active" onchange="">
+                    <option value="fonds">Фондовый рынок</option>
+                    <option value="crypto">Криптовалютный рынок</option>
+                </select>
+              <br>
+              <br>
+              <form id="label_active" class="mb-2">
+                  <input id="active_value" type="search" class="form-control" autocomplete="false" placeholder="Введите актив...">
+              </form>
+              <div id="warning_empty" style="display: none; font-size: 14px; color: #CC0000;"><p id="warning_msg">Для добавления введите название акции или криптовалюты</p></div>
+              <div id="br_" style="display: block;"><br></div>
+
+              <button type="button" onclick="functionAddActiveToPool(dropdown_add_active.value, active_value.value, '{{ user.username }}')" class="btn btn-primary">Добавить</button>
+
+              <br><br>
+
+
+              <p style="font-size: 18px;">Удаление активов</p>
+
+              <div id="user_actives_div" style="">
+                        <select style="vertical-align: top;" id="dropdown_actives" onchange="">
+                            <option value="empty">Выберите актив</option>
+                        </select>
+              </div>
+
+              <br>
+              <div id="warning_empty_delete" style="display: none; font-size: 14px; color: #CC0000;"><p id="warning_msg_delete">Для удаления выберите актив из списка</p></div>
+              <div id="br2_" style="display: block;"><br></div>
+
+              <button class="btn btn-danger rounded-pill px-3" onclick="removeActive(dropdown_actives.value, '{{ user.username }}')">Удалить актив</button>
+
+
+          </div>
+        </div>
+
+        <br>
+        <h2>Настройка уведомлений</h2>
+        <p style="font-size: 18px;">Телеграм-бот</p>
+        <button type="button" onclick="botAuth('{{ user.username }}')" class="btn btn-primary">Получить данные для подключения бота</button>
+        <br><br>
+
+        <p id="login_auth" style="font-size: 18px; display: none">Логин для авторизации:
+            <label style="display: inline-block;min-width: 150px;vertical-align: top;">{{ user.username }}</label>
+        </p>
+
+        <p id="code_auth" style="font-size: 18px; display: none">Код доступа:
+            <label id="code_auth_label" style="display: inline-block;min-width: 150px;vertical-align: top;"></label>
+        </p>
+
+        <a id="go_tg" style="display: none; width: 200px; height: 40px;" type="button" href='https://t.me/ta_patterns_bot' class="btn btn-primary" target="_blank">Перейти в телеграм</a>
+
+        <br><br>
+
+  </div>
+
+</body>
+</html>

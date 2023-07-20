@@ -1,0 +1,9 @@
+Ensured all C++ packages from the C++ Desktop Development were installed for VS 2019 through the VS Installer
+Installed the latest update for VS 2019
+Deleted the old C:/ta-lib folder
+Restarted the computer
+Moved the Unzipped Folder ta-lib to C:\ (from the original zip file)
+Opened x64 Native Tools Command Prompt for VS 2019
+Ran cd C:\ta-lib\c\make\cdr\win32\msvc
+Ran nmake
+Ran pip install ta-lib
